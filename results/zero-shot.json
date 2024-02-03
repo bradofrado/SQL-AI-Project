@@ -1,0 +1,42 @@
+{
+    "strategy":"zero-shot",
+    "results":[
+        {
+            "question":"Which basketball team is the best?",
+            "sql":"\nselect b.name, count(*) as win_count from basketball_team b\njoin basketball_games g on b.id = g.home_team and g.home_final_score > g.away_final_score or b.id = g.away_team and g.away_final_score > g.home_final_score\ngroup by b.name\norder by win_count desc\nlimit 1;\n",
+            "rawResponse":"[{\"name\":\"BYU\",\"win_count\":\"2\"}]",
+            "friendlyResponse":"You asked for the best basketball team and the result showed that the team with the highest win count is BYU with 2 wins."
+        },
+        {
+            "question":"Which player is the best?",
+            "sql":"\nselect \n    basketball_players.name, \n    sum(basketball_game_stats.player_points) as total_points\nfrom \n    basketball_players\ninner join \n    basketball_game_stats on basketball_players.id = basketball_game_stats.player_id\ngroup by \n    basketball_players.name\norder by \n    total_points desc\nlimit 1;\n",
+            "rawResponse":"[{\"name\":\"Kevin\",\"total_points\":\"254\"}]",
+            "friendlyResponse":"You asked who the best player is, and the result showed that a player named Kevin with a total of 254 points is the best."
+        },
+        {
+            "question":"Which basetball team is the worst?",
+            "sql":"\n-- create a table to accumulate total points scored for home games for each team\ncreate table total_points_home as\nselect \n    home_team as team_id,\n    sum(home_final_score) as total_points\nfrom basketball_games\ngroup by home_team;\n\n-- create a table to accumulate total points scored for away games for each team\ncreate table total_points_away as\nselect \n    away_team as team_id, \n    sum(away_final_score) as total_points\nfrom basketball_games\ngroup by away_team;\n\n-- union both tables to have total points for all games for each team\ncreate table total_points as\nselect team_id, total_points from total_points_home\nunion all\nselect team_id, total_points from total_points_away;\n\n-- get the total points score for each team summing the results from home and away games\nselect \n    team_id, \n    sum(total_points) as total_points\ninto total_points_totals\nfrom total_points\ngroup by team_id;\n\n-- finally, get the team name that scored least total points\nselect \n    basketball_team.name, \n    total_points_totals.total_points\nfrom total_points_totals\njoin basketball_team\non total_points_totals.team_id = basketball_team.id\norder by total_points_totals.total_points asc\nlimit 1;\n",
+            "rawResponse":"[{\"name\":\"Utah\",\"total_points\":\"32\"}]",
+            "friendlyResponse":"You asked for the worst basketball team and the result showed that Utah team with a total of 32 points is the considered the worst."
+        },
+        {
+            "question":"How many players have scored more than 50 points this season?",
+            "sql":"\nselect count(distinct player_id) \nfrom basketball_game_stats\nwhere player_points > 50;\n",
+            "rawResponse":"[{\"count\":\"2\"}]",
+            "friendlyResponse":"Description: Two players have scored more than 50 points this season."
+        },
+        {
+            "question":"Which team has played the best this season?",
+            "sql":"\nselect id, name, count(*) as games_played, \nsum(case when home_final_score > away_final_score and home_team = id then 1 else 0 end) \n+ sum(case when away_final_score > home_final_score and away_team = id then 1 else 0 end) as games_won\nfrom basketball_team bt\nleft join basketball_games bg1 on bt.id = bg1.home_team \nleft join basketball_games bg2 on bt.id = bg2.away_team \ngroup by bt.id\norder by games_won desc, games_played asc\nlimit 1;\n",
+            "rawResponse":"\"error: column reference \\\"id\\\" is ambiguous\"",
+            "error":"error: column reference \"id\" is ambiguous",
+            "friendlyResponse":"This error generally occurs in SQL when you refer to a column name \"id\" that exists in more than one table involved in the query, without specifying the table name.\n\n\n\nTo avoid this error, you should qualify the column name with the table name. For example, rather than just \"id\", write \"table_name.id\". So, if your \"id\" column is in a table called \"users\", you would refer to it as \"users.id\". \n\n\n\nFor Instance:\n\n```sql\nSELECT users.id, orders.amount \nFROM users \nINNER JOIN orders ON users.id = orders.user_id;\n```"
+        },
+        {
+            "question":"Which players have not scored yet this season?",
+            "sql":"\nselect name from basketball_players\nwhere id not in (select player_id from basketball_game_stats where player_points > 0);\n",
+            "rawResponse":"[{\"name\":\"Jo Jo Jones\"},{\"name\":\"Little Hand\"},{\"name\":\"Michael Mikeson\"}]",
+            "friendlyResponse":"You asked for the players who haven't scored this season and the result showed that Jo Jo Jones, Little Hand, and Michael Mikeson have not scored yet."
+        }
+    ]
+}

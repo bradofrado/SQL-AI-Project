@@ -1,0 +1,40 @@
+{
+    "strategy":"single-shot",
+    "results":[
+        {
+            "question":"Which basketball team is the best?",
+            "rawResponse":"\"TypeError: Invalid query format.\"",
+            "error":"TypeError: Invalid query format.",
+            "friendlyResponse":"As an AI, I don't have the ability to perceive the previous query or action you took that led to this error. However, typically a \"TypeError: Invalid query format\" error means that the program or function you are using expects a certain type or format of input and what you provided did not match that expectation. You should check the documentation or help guide of the software you're using to ensure your query aligns with the required format. For more specific help, I would need more context about the software or the query you are using."
+        
+        },
+        {
+            "question":"Which player is the best?",
+            "sql":"\nselect \n    bp.name, \n    sum(bgs.player_points) as total_points \nfrom \n    basketball_players bp \njoin \n    basketball_game_stats bgs \non \n    bp.id = bgs.player_id \ngroup by \n    bp.name \norder by \n    total_points desc \nlimit \n    1;\n",
+            "rawResponse":"[{\"name\":\"Kevin\",\"total_points\":\"254\"}]",
+            "friendlyResponse":"You asked who the best player is and the result showed that Kevin is the best player with a total of 254 points."},{"question":"Which basetball team is the worst?",
+            "rawResponse":"\"TypeError: Invalid query format.\"",
+            "error":"TypeError: Invalid query format.",
+            "friendlyResponse":"Sorry, but you haven't given me a query to help you with. Could you please provide more details or rephrase your question?"
+        },
+        {
+            "question":"How many players have scored more than 50 points this season?",
+            "sql":"\nselect count(distinct player_id) \nfrom basketball_game_stats\nwhere player_points > 50;\n",
+            "rawResponse":"[{\"count\":\"2\"}]",
+            "friendlyResponse":"Description: Two players have scored more than 50 points this season."
+        },
+        {
+            "question":"Which team has played the best this season?",
+            "sql":"\nselect team_name from (\n    select home_team as team, count(*) as num_wins\n    from basketball_games\n    where home_final_score > away_final_score\n    group by home_team\n    union all\n    select away_team as team, count(*) as num_wins\n    from basketball_games\n    where away_final_score > home_final_score\n    group by away_team\n) as win_counts\njoin basketball_team\non basketball_team.id = win_counts.team\norder by num_wins desc\nlimit 1;\n",
+            "rawResponse":"\"error: column \\\"team_name\\\" does not exist\"",
+            "error":"error: column \"team_name\" does not exist",
+            "friendlyResponse":"This error occurs because the database you're querying does not contain a column named \"team_name\" in the table you're looking at. \n\nThings you can do to resolve it:\n\n1. Check the spelling: SQL is case-sensitive, ensure that the column name is spelled correctly.\n2. Check the case: Many databases are case-sensitive. If the column name was created with double quotes (\"team_name\"), then it will be case-sensitive, and you will need to query with double quotes.\n3. Check the table structure: Use a DESCRIBE statement or similar to check what columns exist in your table.\n4. Check the right table: Make sure you're querying the correct table where the column exists.\n5. Check with your database administrator or look at the database schema to verify whether such a column exists or not."
+        },
+        {
+            "question":"Which players have not scored yet this season?",
+            "rawResponse":"\"TypeError: Invalid query format.\"",
+            "error":"TypeError: Invalid query format.",
+            "friendlyResponse":"As an AI, I need to clarify something. This error, \"TypeError: Invalid query format,\" usually indicates that your query doesn't match the expected format or type for a function or a method in a programming context. To resolve this, you need to correct the format or type of your query based on the required specifications. Can you provide more context about the situation? That way, I can offer a more specific solution."
+        }
+    ]
+}
