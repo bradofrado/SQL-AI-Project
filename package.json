@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "diagram": "java -jar schemaspy-6.2.4.jar -configFile schemaspy.properties"
+  },
   "devDependencies": {
     "@types/pg": "^8.11.0",
     "typescript": "^5.3.3"
